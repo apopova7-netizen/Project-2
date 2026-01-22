@@ -1,0 +1,421 @@
+//
+// Created by Lenovo on 22.01.2026.
+//
+
+#ifndef PROJECT2_STUDENT2_H
+#define PROJECT2_STUDENT2_H
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+
+typedef struct list {
+    int value;
+    struct list* next;
+}LIST;
+
+inline void Swap(int* a1, int* a2);
+inline void Reverse(int arr[], int start, int end);
+inline void Sorting(int* arr, int n);
+inline void PrintPermutation(const int* perm,int n);
+
+inline bool NextPermutationNarayana(int* arr, int n);
+inline bool PrevPermutationNarayana(int* arr, int n);
+
+inline void PermutationNarayana(int arr[], int n,
+                          void (*callback)(int* perm, int n));////////////////////// возвращать ошибку памяти
+inline void PermutationReverseNarayana(int arr[], int n,
+                          void (*callback)(int* perm, int n));///////////////////////////// возвращать ошибку памяти
+
+inline bool ChooseStepPermutationNarayana(int arr[], int n, int direction);
+inline void ChoosePermutationNarayana(int arr[], int n,void (*callback)
+                                       (int* perm, int n), int direction);/////////////////////// возвращать ошибку памяти
+
+
+inline long Factorial(int n);
+inline void PermutationFromIndex(int arr[], int n,
+                        long index, int result[]);
+inline void PermutationsFactorialSystem(int arr[], /////////////////////// возвращать ошибку памяти
+        int n,void (*callback)(int* perm, int n));
+
+inline LIST* CreateList();
+inline void Fill(const LIST* list, int* arr);
+inline void Insert(LIST* list, int value, int indInsert);
+inline int NextInversionTable(int* inv, int n);
+inline void PermutationFromInversionTable(const int* invTable, int n,const int* arr,int* res);
+inline void PermutationsInversionTable(int arr[],const int n,void (*callback)(int* perm, int n));
+
+//полная очистка list если готовая функция
+
+
+#endif //PROJECT2_STUDENT2_H
+
+
+void Swap(int* a1, int* a2) {
+    int tmp = *a1;
+    *a1 = *a2;
+    *a2 = tmp;
+}
+
+
+void Reverse(int* arr, int start, int end) {
+
+    while (start < end) {
+
+        const int tmp = *(arr + start);
+        *(arr + start) = *(arr + end);
+        *(arr + end) = tmp;
+
+        start++;
+        end--;
+    }
+}
+
+
+void Sorting(int* arr, int n){
+
+    for (int i = 0; i < n - 1; i++)
+        for (int j = 0; j < n - i - 1; j++) {
+
+            if (*(arr + j) > *(arr + j + 1))
+                Swap(arr + j, arr + j + 1);
+        }
+}
+
+
+void PrintPermutation(const int* perm, const int n) {
+    for (int i = 0; i < n; i++)
+        printf("%d ",*(perm + i));
+    puts("");
+}
+
+
+bool NextPermutationNarayana(int* arr, int const n) {
+
+    if (n <= 1)
+        return false;
+
+    int i = n - 2;
+    while (i >= 0 && *(arr + i) >= *(arr + i + 1))
+        i--;
+
+    if (i < 0)
+        return false;
+
+    int j = n - 1;
+    while (*(arr + j) <= *(arr + i))
+        j--;
+
+    Swap(arr + j,arr + i);
+
+    Reverse(arr, i + 1, n - 1);
+
+    return true;
+}
+bool PrevPermutationNarayana(int* arr, const int n) {
+
+    if (n <= 1)
+        return false;
+
+    int i = n - 2;
+    while (i >= 0 && (*(arr + i) <= *(arr + i + 1)))
+        i--;
+
+    if (i < 0)
+        return false;
+
+    int j = n - 1;
+    while (*(arr + j) >= *(arr + i))
+        j--;
+
+    Swap(arr + i,arr + j);
+
+    Reverse(arr, i + 1, n - 1);
+
+    return true;
+}
+
+
+
+void PermutationNarayana(int arr[], const int n,
+                          void (*callback)(int perm[], int n)) {
+
+    int* copy = (int*)malloc(sizeof(int) * n);
+    if (copy == NULL)
+        return;
+
+
+    memcpy(copy, arr, sizeof(int) * n);
+
+    Sorting(copy,n);
+
+    callback(copy, n);
+    while (NextPermutationNarayana(copy,n))
+        callback(copy,n);
+
+    free(copy);
+}
+
+void PermutationReverseNarayana(int arr[], const int n,
+                          void (*callback)(int perm[], int n)) {
+
+    int* copy = (int*)malloc(sizeof(int) * n);
+
+    if (copy == NULL)
+        return;
+
+    memcpy(copy, arr, sizeof(int) * n);
+
+    Sorting(copy,n);
+    Reverse(copy,0,n - 1);
+
+    callback(copy, n);
+    while (PrevPermutationNarayana(copy,n))
+        callback(copy,n);
+
+    free(copy);
+}
+
+
+bool ChooseStepPermutationNarayana(int* arr, const int n, const int direction) {
+
+    if (n <= 1)
+        return false;
+
+    int i = n - 2;
+
+    if (direction)
+        while (i >= 0 && *(arr + i) >= *(arr + i + 1))
+            i--;
+    else
+        while (i >= 0 && *(arr + i) <= *(arr + i + 1))
+            i--;
+
+    if (i < 0)
+        return false;
+
+    int j = n - 1;
+
+    if (direction)
+        while (*(arr + j) <= *(arr + i))
+            j--;
+    else
+        while (*(arr + j) >= *(arr + i))
+            j--;
+
+
+    Swap(arr + i,arr + j);
+
+    Reverse(arr, i + 1, n - 1);
+
+    return true;
+}
+
+
+void ChoosePermutationNarayana(int arr[], const int n,
+                          void (*callback)(int perm[], int n), const int direction){
+
+    int* copy = (int*)malloc(sizeof(int) * n);
+
+    if (copy == NULL)
+        return;
+
+    memcpy(copy, arr, sizeof(int) * n);
+
+    Sorting(copy,n);
+
+    if (!direction)
+        Reverse(copy,0,n - 1);
+
+    callback(copy, n);
+
+
+    while (ChooseStepPermutationNarayana(copy,n,direction))
+        callback(copy,n);
+
+    free(copy);
+}
+
+
+
+ long Factorial(const int n){
+    long result = 1;
+
+    for (int i = 2; i <= n; i++)
+        result *= i;
+    return result;
+}
+
+
+void PermutationFromIndex(int arr[],const int n, long index, int* result) {
+
+    if (n == 0)
+        return;
+
+    const long totalPerm = Factorial(n);
+    index = (index % totalPerm + totalPerm) % totalPerm;
+
+
+    int* facDigits = (int*)malloc(n * sizeof(int)); /////////////////////////////////////// malloc
+    long tmp = index;
+
+    for (int i = 1; i <= n; i++) {
+        const int div = Factorial(n - i);
+        *(facDigits + i - 1) = tmp / div;
+        tmp %= div;
+    }
+
+    int* copy = (int*)malloc(sizeof(int) * n); //////////////////malloc
+    memcpy(copy, arr, sizeof(int) * n);
+    int realLen = n;
+
+    for (int i = 0; i < n; i++) {
+        const int takeInd = *(facDigits + i);
+        *(result + i) = *(copy + takeInd);
+
+        for (int j = takeInd; j < realLen - 1; j++)
+            *(copy + j) = *(copy + j + 1);
+        *(copy + realLen + 1) = 0;
+
+        realLen--;
+    }
+free(facDigits);
+free(copy);
+}
+
+void PermutationsFactorialSystem(int arr[],const int n,
+                                  void (*callback)(int* perm, int n)) {
+    if (n <= 0)
+        return;
+
+    const long totalPerm = Factorial(n);
+    int* perm = (int*)malloc(n * sizeof(int));
+
+    if (perm == NULL)
+        return;
+
+    for (long ind = 0; ind < totalPerm; ind++) {
+        PermutationFromIndex(arr,n,ind,perm);
+        callback(perm,n);
+    }
+}
+
+
+
+LIST* CreateList() {
+    LIST* cur = (LIST*)malloc(sizeof(LIST));
+    cur->value = 0;
+    cur->next = NULL;
+    return cur;
+}
+
+void Fill(const LIST* list, int* arr) {
+    const LIST* cur = list->next;
+    int i = 0;
+    while (cur) {
+        *(arr + i) = cur->value;
+        cur = cur->next;
+        i++;
+    }
+}
+
+void Insert(LIST* list, const int value, const int indInsert) {
+    LIST* cur = (LIST*)malloc(sizeof(LIST));
+
+    cur->value = value;
+    LIST* ptr = list;
+
+    for (int i = 0 ; i < indInsert; i++)
+        ptr = ptr -> next;
+
+    cur->next = ptr->next;
+    ptr->next = cur;
+
+}
+
+int NextInversionTable(int* inv,const int n) {
+
+    for (int i = n - 1; i >= 0; i--)
+        if (*(inv + i) < n - 1 - i) {
+            (*(inv + i))++;
+
+            for (int j = i + 1; j < n; j++)
+                *(inv + j) = 0;
+            return 1;
+        }
+    return 0;
+}
+
+
+void PermutationFromInversionTable(const int* invTable,const int n,const int* arr,int* res) {
+    LIST* list = CreateList();
+    
+    if (list == NULL) /////////////////////////////////////////////
+        return;
+
+    for (int i = n - 1; i >= 0; i--) {
+        Insert(list, *(arr + i),*(invTable + i));
+    }
+
+    Fill(list, res);
+    
+    free(list);////////////////////////////////////////////?
+    
+}
+
+void PermutationsInversionTable(int arr[],const int n,void (*callback)(int* perm, int n)){
+
+    int* copy = (int*)malloc(n * sizeof(int));
+    
+    if (copy == NULL)
+        return;      ////////////////////////////////////////malloc  void -> int и возвращаем по 1 если ошибка памяти
+    
+    memcpy(copy, arr, sizeof(int) * n);
+
+    Sorting(copy,n);
+
+    int* inv = (int*)calloc(n, sizeof(int));
+
+    if (inv == NULL) {
+        free(copy);
+        return;
+    }         //////////////////////////////////////////////////////////////////calloc
+
+    int* perm = malloc(n * sizeof(int));
+
+    if (perm == NULL) {
+        free(copy);
+        free(inv);   /////////////////////////////////////////////////////////////////malloc
+        return;
+    }
+
+    do {
+        PermutationFromInversionTable(inv,n, copy, perm);
+        callback(perm,n);
+
+    } while (NextInversionTable(inv,n));
+    free(copy);
+    free(inv);
+    free(perm);
+}
+
+
+/*
+ * ЗАДАЧА 2.4: Алгоритм "Плюс-один" (инкрементальный)
+ *
+ * TODO:
+ * 1. Использовать массив индексов [0,1,2,...,n-1]
+ * 2. Инкрементально изменять индексы как числа в смешанной системе счисления
+ * 3. Преобразовывать индексы в перестановки
+ * 4. Гарантировать генерацию всех перестановок
+ */
+//void permutations_plus_one(int arr[], int n,
+                         // void (*callback)(int perm[], int n)) {
+    // TODO: Инициализация массива индексов
+    // TODO: Цикл генерации всех комбинаций индексов
+    // TODO: Преобразование индексов в перестановку исходного массива
+    // TODO: Вызов callback() для каждой перестановки
+    // */
+
+
