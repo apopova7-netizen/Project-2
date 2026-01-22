@@ -10,7 +10,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-inline void Swap(int* a1, int* a2);
+inline void Swap(int* a1, int* a2); 
 inline void Reverse(int arr[], int start, int end);
 inline void Sorting(int* arr, int n);
 inline void PrintPermutation(int perm[], int n);
