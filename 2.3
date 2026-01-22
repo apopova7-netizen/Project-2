@@ -12,7 +12,7 @@ void PrintPermutation(int perm[], int n) {
 
 int NextInversionTable(int inv[], int n) {
 
-    for (int i = n - 1; i >= 0; i--)
+    for (int i = n - 1; i >= 0; i--) 
         if (inv[i] < n - 1 - i) {
             inv[i]++;
             for (int j = i + 1; j < n; j++)
